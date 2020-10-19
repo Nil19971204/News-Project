@@ -1,0 +1,80 @@
+HOW TO USE OKTA  IN ANGULAR PART
+.....................................................................................
+
+In app.module.ts->
+   		  1.import {OktaAuthModule} from '@okta/okta-angular';
+		  2.OktaAuthModule.initAuth({
+      			issuer:'https://AngularWebApplication/oauth2/default',
+      			redirectUri:'http://localhost:4200/implicit/callback',
+      			clientId:'0oamxzuf7gL6BwnY64x6'
+   			 })
+		 
+**Note:-
+ 	-> You have to import OktaAuthModule from '@okta/okta-angular';
+	-> In imports(inside Ngmodule decorator) you have to write the line no 2 .
+	-> initAuth is a annymous function (object in angular) which written inside OktaAuthModule.We have to pass min these 3 parameter.
+	   issuer: AngularWebApplication is the project name.
+		*************   
+		*************
+
+          redirectUri:After getting respone where it will come .Maybe you are not able to see this url.After getting response, component will load 
+		      acording to the response.Whatever you set acording to it Angular component will load.
+         
+         clientId: After synchronised OKTA to your project, Okta will give you a clientId.
+
+
+  
+In app-routing.module.ts->          
+			   1.import { OktaAuthModule } from '@okta/okta-angular';
+			   2.import {OktaAuthGuard,OktaCallbackComponent} from '@okta/okta-angular';
+			   3.{
+    				path:"implicit/callback",
+                                component:OktaCallbackComponent
+  			     }   
+
+**Note:-
+        -> You have to import line 1 and line 2 .
+	-> We consider a path "implicit/callback" this is the path for  OktaCallComponent.It is Angular-Okta component.After installtion Okta we can use Oktacomponent.
+           This component responsible for getting response from Okta and give it to angular.It's a midway.
+
+In entry.component.ts->
+			1.import {OktaAuthService} from '@okta/okta-angular';
+			2.public isAuthenticated:boolean;
+  			  constructor(public oktaAuth:OktaAuthService) {
+        		  this.isAuthenticated=false;
+    		*	  this.oktaAuth.$authenticationState.subscribe(
+            	*	  (isAuthenticated2:boolean)=>
+                *	  this.isAuthenticated=isAuthenticated2
+              	*	  );
+      			 }
+
+  			async ngOnInit(){
+    			this.isAuthenticated=await this.oktaAuth.isAuthenticated();
+  			}
+ 			login(){
+   			 this.oktaAuth.loginRedirect();
+  			}
+  			logout(){
+    			this.oktaAuth.logout('/');
+  			}
+**Note:-
+	->Entry component is like another component inside app module.
+          Inside entry-component.ts ,have to import line no 1.
+	-> then write rest of the code.
+           isAuthenticated is a public variable type boolean.Make a object/instance of 	OktaAuthService named oktaAuth.
+	   ***********
+            isAuthenticated2 gives the response to isAuthenticated variable.
+	-> At first it will call ngOnInit
+       
+           It will try to find the value of  isAuthenticated then it will wait for a operation,  isAuthenticated() function written inside oktaAuth.
+	   This function call actually our operation.This will done first then the value will give to isAuthenticated variable.
+	-> isAuthenticated() function nothing but the 4 star(*) line it is.
+      
+        -> After pressing login button login function will call.
+	   *****************
+	-> After pressing logout button logout function will call.
+	   *****************
+
+In entry.component.html->
+			1.<button mat-button *ngIf="!isAuthenticated" (click)="login()">Login</button>
+      			2.<button mat-button *ngIf="isAuthenticated" (click)="logout()">Logout</button>
